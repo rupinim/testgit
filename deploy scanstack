@@ -1,0 +1,24 @@
+---
+- hosts:
+    - tag_AnsibleGroup_scanStack
+  roles:
+    - role: new-server
+      tags: [new]
+  tags: [new]
+- hosts: 
+  - tag_AppName_scan_intake
+  serial: "100%"
+  strategy: free
+  roles:
+#    - role: new-server
+#      tags: [new]
+    - role: java
+      tags: [new]
+    - role: efs-mount
+      tags: [new, deploy, efs]
+    - role: tomcat
+      tags: [new]
+    - role: application-configuration
+      tags: [new, deploy]
+  tasks:
+    - import_tasks: task-deploy-tomcat.yml
