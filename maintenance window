@@ -1,0 +1,10 @@
+
+- hosts: load-balancers
+  tags:
+  - maintenance 
+  remote user: root
+  tasks:
+     - name: set maintenance window 
+       templates:
+         src: /etc/ansible/roles/nginx/templates/_mainReturn.conf.j2
+         dest: /etc/ansible/roles/nginx/templates/_mainReturn.conf.j2
