@@ -1,0 +1,57 @@
+Restart tomcat.yml
+---
+- hosts:
+  - tag_AppName_metadata
+  tasks:
+  - name: Stop Metadata Tomcat
+    service:
+      name: "tomcat-metadata"
+      state: stopped
+  - name: Wait for metadata port to be stopped
+    wait_for:
+      host: 0.0.0.0
+      port: "8{{ tomcat_port }}80"
+      state: stopped
+  - name: Start Metadata Tomcat
+    service:
+      name: "tomcat-metadata"
+      state: started
+  - name: Wait for metadata port to be started
+    wait_for:
+      host: 0.0.0.0
+      port: "8{{ tomcat_port }}80"
+      state: started
+- hosts:
+    - tag_AnsibleGroup_tomcatApp
+    - tag_AppName_sharedsession
+  serial: "100%"
+  strategy: free
+#  gather_facts: True
+#  gather_subset: network
+  tasks:
+  - name: Restart Tomcat
+    service:
+      name: "tomcat-{{ app_name }}"
+      state: restarted
+    when:
+      - not inventory_hostname in groups['tag_AppName_metadata']
+- hosts:
+    - tag_AppName_scan_intake
+    - tag_AppName_scan_view
+    - tag_AppName_scan_queue_processor
+    - tag_AppName_scan_api
+  serial: "100%"
+  strategy: free
+  tasks:
+    - name: Restart Scan Server Tomcats
+      service:
+        name: "tomcat-{{ app_name }}"
+        state: restarted
+- hosts:
+    - tag_AppName_ola_data_server
+  serial: "100%"
+  tasks:
+    - name: Restart OLA Data Server Tomcat
+      service:
+        name: "tomcat-{{ app_name }}"
+        state: restarted
