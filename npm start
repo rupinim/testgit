@@ -1,0 +1,7 @@
+cd dashboard
+npm install
+npm start
+or run with script to keep process up:
+./startup.sh
+stop with:
+./shutdown.sh
