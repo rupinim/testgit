@@ -1,0 +1,53 @@
+---
+- hosts:
+  - tag_AppName_metadata
+  tasks:
+  - name: Stop Metadata Tomcat
+    service:
+      name: "tomcat-metadata"
+      state: stopped
+  - name: Wait for metadata port to be stopped
+    wait_for:
+      host: 0.0.0.0
+      port: "8{{ tomcat_port }}80"
+      state: stopped
+- hosts:
+  - tag_AnsibleGroup_tomcatApp
+  - tag_AnsibleGroup_sharedSession
+  serial: "100%"
+  strategy: free
+  tasks:
+  - name: Stop Tomcat
+    service:
+      name: "tomcat-{{ app_name }}"
+      state: stopped
+    when: not inventory_hostname in groups['tag_AppName_metadata']
+- hosts:
+    - tag_AppName_scan_intake
+    - tag_AppName_scan_view
+  serial: "100%"
+  tasks:
+    - name: Restart OLA Data Server Tomcat
+      service:
+        name: "tomcat-{{ app_name }}"
+        state: stopped
+- hosts:
+    - tag_AppName_ola_data_server
+  serial: "100%"
+  tasks:
+    - name: Stop OLA Data Server Tomcat
+      service:
+        name: "tomcat-{{ app_name }}"
+        state: stopped
+- hosts:
+    - tag_AppName_ola_web
+  serial: "100%"
+  tasks:
+    - name: Stop Tomcat-OL0
+      service:
+        name: "tomcat-ol0
+        state: stopped
+    - name: Stop Tomcat-OL1
+      service:
+        name: "tomcat-ol1"
+        state: stopped
